@@ -2,6 +2,9 @@ package ma.formations.jdbc.presentation.controller;
 
 import java.io.IOException;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,7 +18,24 @@ import ma.formations.jdbc.service.model.Article;
 @WebServlet("/updateArticle.do")
 public class UpdateArticleServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private IService service = new ServiceImpl();
+    private IService service;
+    private EntityManagerFactory emf;
+    private EntityManager em;
+
+    @Override
+    public void init() throws ServletException {
+        emf = Persistence.createEntityManagerFactory("myJpaUnit");
+        em = emf.createEntityManager();
+        ServiceImpl impl = new ServiceImpl();
+        impl.setEntityManager(em); // injection de l'EntityManager
+        this.service = impl;
+    }
+
+    @Override
+    public void destroy() {
+        if (em != null && em.isOpen()) em.close();
+        if (emf != null && emf.isOpen()) emf.close();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

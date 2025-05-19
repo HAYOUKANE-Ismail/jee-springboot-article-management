@@ -1,16 +1,32 @@
 package ma.formations.jdbc.service;
 
-import java.util.List;
-import ma.formations.jdbc.dao.DaoImplJDBC;
+import jakarta.persistence.EntityManager;
 import ma.formations.jdbc.dao.IDao;
-import ma.formations.jdbc.dao.article.ArticleDaoImplJDBC;
+import ma.formations.jdbc.dao.UserDaoImplJPA;
+import ma.formations.jdbc.dao.article.ArticleDaoImplJPA;
 import ma.formations.jdbc.dao.article.IArticleDao;
 import ma.formations.jdbc.service.model.Article;
 import ma.formations.jdbc.service.model.User;
+import ma.formations.jdbc.util.JpaUtil;
+
+import java.util.List;
 
 public class ServiceImpl implements IService {
-    private IDao dao = new DaoImplJDBC();
-    private IArticleDao daoArticle = new ArticleDaoImplJDBC();
+    private IDao dao;
+    private IArticleDao daoArticle;
+
+    // constructeur sans argument
+    public ServiceImpl() {
+        EntityManager em = JpaUtil.getEntityManager(); // Cf. la classe ci-dessous
+        this.dao = new UserDaoImplJPA(em);
+        this.daoArticle = new ArticleDaoImplJPA(em);
+    }
+
+    // Setter pour injecter l'EntityManager après création de l'objet
+    public void setEntityManager(EntityManager entityManager) {
+        this.dao = new UserDaoImplJPA(entityManager);
+        this.daoArticle = new ArticleDaoImplJPA(entityManager);
+    }
 
     @Override
     public Boolean checkAccount(String username, String password) {
